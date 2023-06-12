@@ -1,0 +1,10 @@
+---
+layout: post
+title:  Verdant
+author: Noel Alemayehu
+date:   2022-07-11 09:01:27 +0300
+categories: games verdant
+description: "Global Game Jam entry"
+published: true
+---
+{% include verdant.html %}

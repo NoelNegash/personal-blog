@@ -1,0 +1,310 @@
+---
+layout: post
+title:  "Neural Networks From Scratch With Buzz Lightyear (Part 2: Perceptrons)"
+author: Noel Alemayehu
+date:   2020-09-05 21:30:24 +0300
+categories: programming neural-networks buzz-lightyear
+description: Buzz Lightyear teaches math
+published: true
+---
+<style> {% include /css/style.css %} </style>
+<script src="https://code.jquery.com/jquery-3.7.0.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/p5@1.1.9/lib/p5.js"></script>
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+<script src="/assets/blog_scripts/perceptron_tutorial.js"></script>
+
+
+Before we go ahead and start making one, it's useful to clarify what a perceptron (and a neural network in general) is. It is an object vaguely inspired by the biological neuron that takes in an input and maps it to a certain output, basically a function. In general, there are two types of perceptrons, ones that output continuous values (called linear regression models) and ones that output discrete values (logistic regression models). Let's start with the former.
+
+
+In a linear regression model, we try to optimize a perceptron into making accurate predictions based on a given dataset. The simplest and most common function this perceptron can be is a simple line, \( output = weight cdot input + bias \), weight and bias being the slope and y-intercept. Since we don't know what weight and bias to use, we set them to random numbers. In the illustration below, you can see what a randomly initialized perceptron acts like and how close it comes to describing the real data, in this case a straight line. The blue lines show the amount of deviation from the correct answer. We call them the *cost*, *loss* or *error* of the perceptron. A convenient method to calculate cost is as the square of the difference between the output and the desired output. It's convenient because the derivative is easy to calculate.
+
+
+<div class="flex-container">
+
+{% highlight javascript linenos %}
+
+    var perceptron = [random(-1,1),random(-1,1)]
+    function calculatePerceptron(x) {
+        return perceptron[0]*x + perceptron[1]
+    }
+    function cost(x,y) {
+        return (calculatePerceptron(x) - y)**2
+    }
+    function cost_deriv(x,y) {
+        
+        return 2 * (calculatePerceptron(x) - y)
+    }
+{% endhighlight %}
+
+<div>
+    <div id="canvas-container-0"></div>
+    <p id="cost0" class="cost"></p>
+    <button class="reset-button" onclick="resetPerceptron(0)" type="button"> Reset </button>
+</div>
+
+</div>
+
+<p>
+In the spirit of this article, let's suppose our data is a map of stars that Buzz Lightyear has to fly to on a mission. He knows the locations of the first few stars in his itinerary, but after that he's on his own. In this scenario, our data is the stars we already know of and the perceptron is meant to fit them as well as predict the location of the unknown stars. Again, since we don't know what weight and bias give us this behavior, we set them to random values. 
+</p>
+
+<p>
+Since a randomly initialized perceptron is useless, we need to find a way to change it into one with no loss. In other words, we want to find the weight and bias where the loss is at a minimum. If that sounds familiar, that is because it's gradient descent. If we find the derivative of the cost in terms of the weight and bias, we can optimize the perceptron. If the cost is \({((in \cdot w + b) - out)}^2\), the derivative is \(2 \cdot{((in \cdot w + b) - out)}\) in terms of the bias, same as the function above. But for the weight, we need to consider the chain rule. That means we multiply the previous derivative by the derivative of \(in \cdot w \), giving us \(2 \cdot{((in \cdot w + b) - out)} \cdot in\).
+</p>
+
+<div class="flex-container">
+
+{% highlight javascript linenos %}
+function update() {
+    # variable to sum up the derivatives
+    var adj = [0,0]
+    for (var i = 0; i &lt; points.length; i++) {
+        var p = points[i]
+        adj[0] -= cost_deriv(p.x, p.y)*p.x
+        adj[1] -= cost_deriv(p.x, p.y)
+    } 
+    perceptron[0] += 0.05*adj[0]
+    perceptron[1] += 0.007*adj[1]
+}
+{% endhighlight %}
+
+<div>
+    <div id="canvas-container-1"></div>
+    <p id="cost1" class="cost"></p>
+    <button class="reset-button" onclick="resetPerceptron(1)" type="button"> Start </button>
+</div>
+
+</div>
+
+
+Now that the perceptron has been optimized, it fits the data we have perfectly and and Buzz can find all the other stars he wants by just extending the line.
+
+
+Note that since the perceptron is a straight line, it can only get a cost of zero when the data itself is in a straight line. If the data has slight deviations, the cost will settle at a number slightly above zero because that is the best possible fit. And if the data isn't even a line, let's say it goes up and down, then a single perceptron is basically worthless, since it can only model one direction. You can see the best fits of different types of data on a single perceptron below.
+
+
+<div class="flex-container">
+
+<div>
+    <div id="canvas-container-2"></div>
+    <p id="cost2" class="cost"></p>
+    <button class="reset-button" onclick="resetPerceptron(2)" type="button"> Start </button>
+</div>
+
+<div>
+    <button class="change-button" onclick="changeData(2, 'lin')" type="button"> Linear Data </button>
+    <button class="change-button" onclick="changeData(2, 'lindev')" type="button"> Linear (Deviation) </button>
+    <button class="change-button" onclick="changeData(2, 'quad')" type="button"> Quadratic </button>
+    <button class="change-button" onclick="changeData(2, 'quaddev')" type="button"> Quad (Deviation) </button>
+    <button class="change-button" onclick="changeData(2, 'cub')" type="button"> Cubic </button>
+    <button class="change-button" onclick="changeData(2, 'cubdev')" type="button"> Cubic (Deviation) </button>
+    <button class="change-button" onclick="changeData(2, 'sin')" type="button"> Sine </button>
+    <button class="change-button" onclick="changeData(2, 'sindev')" type="button"> Sine (Deviation) </button>
+</div>
+
+</div>
+
+As you can see, a single perceptron is not expressive enough when it comes to complex data that doesn't necessarily show linear behavior. In practice, we solve this by using perceptrons in chains and layers to create more complex models, which is what we are going to do in the next and final article. But here, in the spirit of experimentation, we can also change the type of perceptron so that it can fit the data. We can make it a quadratic, cubic or even sine function. And if we get the derivatives right, each one is a valid perceptron that can in some cases outperform a simple linear function.
+
+
+<div class="flex-container">
+{% highlight javascript linenos %}
+{% endhighlight %}
+<div>
+    <div id="canvas-container-3"></div>
+    <p id="cost3" class="cost"></p>
+    <button class="reset-button" onclick="resetPerceptron(3)" type="button"> Start </button>
+</div>
+
+<div>
+    <button class="option-button" onclick="containers[3].cp = calculatePerceptron" type="button"> Linear Function </button>
+    <button class="option-button" onclick="containers[3].cp = calculatePerceptronQuad" type="button"> Quad Function </button>
+    <button class="option-button" onclick="containers[3].cp = calculatePerceptronCub" type="button"> Cubic Function </button>
+    <button class="option-button" onclick="containers[3].cp = calculatePerceptronSin" type="button"> Sine Function </button>
+</div>
+
+<div>
+    <button class="change-button" onclick="changeData(3, 'lin')" type="button"> Linear Data </button>
+    <button class="change-button" onclick="changeData(3, 'lindev')" type="button"> Linear (Deviation) </button>
+    <button class="change-button" onclick="changeData(3, 'quad')" type="button"> Quadratic </button>
+    <button class="change-button" onclick="changeData(3, 'quaddev')" type="button"> Quad (Deviation) </button>
+    <button class="change-button" onclick="changeData(3, 'cub')" type="button"> Cubic </button>
+    <button class="change-button" onclick="changeData(3, 'cubdev')" type="button"> Cubic (Deviation) </button>
+    <button class="change-button" onclick="changeData(3, 'sin')" type="button"> Sine </button>
+    <button class="change-button" onclick="changeData(3, 'sindev')" type="button"> Sine (Deviation) </button>
+</div>
+
+</div>
+
+
+We can see a lot of intuitive stuff when we mess around with the function and data pairs. One of the first things we notice is that the cubic function can fit easily to all the types of data. It makes sense, because a quadratic expression is just a cubic expression with a zero coefficient. And a linear expression is one with two. If that's the case, you might be wondering why we don't prefer them to linear expressions in neural networks. The correct answer is that they tend to overfit and have exploding gradients, both of which will be explained in the next article. The simplified answer is that cubic functions, and higher-polynomials in general, have very sensitive coefficients. A small change affects the graph drastically, making them too unstable for practical purposes. And even when we find a way to make them stable, it comes at the cost of speed and efficiency, which have a lot of importance when it comes to practical machine learning, since it's not uncommon for a neural network to have thousands, millions or billions of perceptrons.
+
+
+Another less obvious thing we notice is that the sine function sometimes has trouble fitting to quadratic data, remaining a horizontal line. This is because the perceptron has found a *local* minimum instead of the *absolute* minimum. What it means is that sometimes your perceptron finds the best weights if you initialize it a certain way and misses them in others, which also comes into play when you make large networks.
+
+
+All of this applies to logistic regression as well. But while linear regression makes perceptrons predict data, logistic regression makes them classify it. For example, if the galaxy is either being invaded or experiencing a pandemic, Buzz doesn't need to know where the spaceships or planets are, he needs to know *what* they are when he sees them. In this scenario, we have a dataset of green(safe) and orange(dangerous) points, the few places we know the status of, and Buzz wants to figure out which group a newly added point belongs to. 
+
+<p>
+So how do we make a perceptron output discrete values? We can't. But we can do the next best thing, we can make it output probabilities on those discrete values. Linear perceptrons are not very useful to decide probabilities, because it makes very little sense to say 1000% green or -12% orange. We need it to output something from 0% to 100%. This is where the sigmoid activation function comes in. An activation function is a sort of wrapper we put over the perceptron to make its output convenient to use. Sigmoid uses the formula \( \dfrac{1}{1+e^{-x}} \) to squash a linear equation between 0 and 1. Now 1000 maps to 100% and -12 maps to 0%. Sigmoid also has a convenient derivative, \( sigmoid(x) \cdot (1-sigmoid(x)) \).
+</p>
+
+<div class="flex-container">
+{% highlight javascript linenos %}
+{% endhighlight %}
+<div id="canvas-container-4"></div>
+</div>
+
+<p>
+When we use logistic regression, it's common to change the cost function too. While we can technically still use the difference squared, it gives poor results because the maximum possible cost is only 1, making gradient descent work slowly. We use the negative log functions, \(-log({1 - output})\) and \(-log({output})\), depending on whether we want 0 or 1, to give us a more exaggerated cost, as you can see below.
+</p>
+
+<div class="flex-container">
+{% highlight javascript linenos %}
+{% endhighlight %}
+<div id="canvas-container-5"></div>
+</div>
+
+
+<div class="flex-container">
+{% highlight javascript linenos %}
+{% endhighlight %}
+<div id="canvas-container-6"></div>
+</div>
+
+<p>
+Combining the activation function and cost function with a simple linear perceptron gives us a more complex derivative because of all the nesting. But if we follow the chain rule, it comes together easily enough. The cost function is \(log(sig(perceptron))\), so the derivative will be \(logDeriv(sig(perceptron)) \cdot sigDeriv(perceptron) \cdot perceptronDeriv \). Here it is in code form, finding a line to separate the green and orange points.
+</p>
+
+<div class="flex-container">
+{% highlight javascript linenos %}
+function sigmoid(x) {
+    return 1/(1+Math.exp(-x))
+}
+function sigmoid_deriv(x) {
+    return sigmoid(x)*(1-sigmoid(x))
+}
+function calculatePerceptron(data) {
+    return perceptron[0]*data.x + perceptron[1]*data.y + perceptron[2])
+}
+function cost(data) {
+    var x = sigmoid(calculatePerceptron(data))
+
+    if (data.class == 1) {
+            return -Math.log(x)
+    }
+    return -Math.log(1-x)
+}
+function cost_deriv(data, y) {
+    var x = sigmoid(calculatePerceptron(data))
+
+    if (data.class == 1) {
+            return -1/x
+    }
+    return 1/(1-x) 
+    // not negative because the inner derivative cancels it out
+}
+function update() {
+    // variable to sum up the derivatives
+    var adj = [0,0,0]
+    for (var i = 0; i &lt; points.length; i++) {
+        var p = points[i]
+        adj[0] -= cost_deriv(p) * sigmoid_deriv(calculatePerceptron(p)) * p.x
+        adj[1] -= cost_deriv(p) * sigmoid_deriv(calculatePerceptron(p)) * p.y
+        adj[2] -= cost_deriv(p) * sigmoid_deriv(calculatePerceptron(p))
+    } 
+    perceptron[0] += 0.3*adj[0]
+    perceptron[1] += 0.3*adj[1]
+    perceptron[2] += 0.3*adj[2]
+}
+{% endhighlight %}
+<div>
+    <div id="canvas-container-7"></div>
+    <p id="cost7" class="cost"></p>
+    <button class="reset-button" onclick="resetPerceptron(7)" type="button"> Start </button>
+</div>
+</div>
+
+
+Now that we have the ideal perceptron, all we need to do to find the class of a data point is to check the ouptut of the sigmoid. If it's 0.5, then the point lies right on the line and can't be said to be one or the other. If it is less than 0.5, we say it is closer to the 0 class and if it is greater we say it is in the 1 class. We can visualize this by trying the perceptron on the whole plane and seeing how the output changes.
+
+
+<div class="flex-container">
+<div>
+    <div id="canvas-container-8"></div>
+    <p id="cost8" class="cost"></p>
+    <button class="reset-button" onclick="resetPerceptron(8)" type="button"> Start </button>
+</div>
+</div>
+
+Now Buzz can tell whether any section of space is safe or dangerous based on the little data he has. Let's see how it works on different datasets. You can change the datasets below to random clusters and nested rings to see how well the perceptron manages to separate them.
+
+
+<div class="flex-container">
+<div>
+    <div id="canvas-container-9"></div>
+    <p id="cost9" class="cost"></p>
+    <button class="reset-button" onclick="resetPerceptron(9)" type="button"> Start</button>
+</div>
+
+<div>
+    <button class="change-button" onclick="changeData(9, 'clust')" type="button"> Two Clusters </button>
+    <button class="change-button" onclick="changeData(9, 'clustin')" type="button"> Two Clusters (Intersecting) </button>
+    <button class="change-button" onclick="changeData(9, '3clust')" type="button"> Three Clusters </button>
+    <button class="change-button" onclick="changeData(9, '3clustin')" type="button"> Three Clusters (Intersecting) </button>
+    <button class="change-button" onclick="changeData(9, 'rings')" type="button"> Two Rings </button>
+    <button class="change-button" onclick="changeData(9, '3rings')" type="button"> Three Rings </button>
+</div>
+</div>
+
+Like the linear regression example, sometimes a simple perceptron isn't complex enough to model data with curves, especially closed curves like circles, which can never be modeled by a line. The cost never reaches a reasonable low either. Again, in practice this is remedied by using multiple layers of simple perceptrons, but for the sake of experimentation, we will see how more exotic perceptrons fare with the same data.
+
+<div class="flex-container">
+<div>
+    <div id="canvas-container-10"></div>
+    <p id="cost10" class="cost"></p>
+    <button class="reset-button" onclick="resetPerceptron(10)" type="button"> Start</button>
+</div>
+
+<div>
+    <button class="option-button" onclick="containers[10].cp = calculatePerceptronSigmoid" type="button"> Linear Function </button>
+    <button class="option-button" onclick="containers[10].cp = calculatePerceptronQuadSigmoid" type="button"> Quad Function </button>
+    <button class="option-button" onclick="containers[10].cp = calculatePerceptronCubSigmoid" type="button"> Cubic Function </button>
+    <button class="option-button" onclick="containers[10].cp = calculatePerceptronSinSigmoid" type="button"> Sine Function </button>
+    <button class="option-button" onclick="containers[10].cp = calculatePerceptronSinQuadSigmoid" type="button"> Sine(Quad) Function </button>
+</div>
+
+<div>
+    <button class="change-button" onclick="changeData(10, 'clust')" type="button"> Two Clusters </button>
+    <button class="change-button" onclick="changeData(10, 'clustin')" type="button"> Two Clusters (Intersecting) </button>
+    <button class="change-button" onclick="changeData(10, '3clust')" type="button"> Three Clusters </button>
+    <button class="change-button" onclick="changeData(10, '3clustin')" type="button"> Three Clusters (Intersecting) </button>
+    <button class="change-button" onclick="changeData(10, 'rings')" type="button"> Two Rings </button>
+    <button class="change-button" onclick="changeData(10, '3rings')" type="button"> Three Rings </button>
+</div>
+</div>
+
+
+As you can see, more complex functions tend to fit more complex data, but even the most complex functions can't perfectly separate data that is thoroughly mixed. This is a common problem you will see with neural networks that are given bad or patternless data, they will give back confusing information that contains a lot of false positives and negatives.
+
+<p>
+If you are wondering why the quadratic function can model circles and ellipses, it is because we are using the the general formula \( a \cdot x^2 + b \cdot x+c \cdot y^2+d \cdot y + e \), which can model those shapes as well as parabolic and hyperbolic curves. Plugging it into a sine function adds another layer of complexity, resulting in graphs like concentric rings and expanding stars.
+</p>
+
+And that is it for perceptrons. Read [the next article]({% post_url 2020-09-07-buzz-3 %}) to see how we can combine perceptrons to create much more powerful and expressive neural networks.
+
+<script> 
+    jQuery(".reset-button").click((e) => {
+            e.target.innerHTML = "Reset"
+        console.log(e.target)
+    })
+    var i = 0
+    var e
+    var containers = []
+    while((e = document.getElementById("canvas-container-"+i)) && window['container'+i]) {
+        var canvas = new p5(window['container'+i], e)
+        containers.push(canvas)
+        i++
+    }
+</script>

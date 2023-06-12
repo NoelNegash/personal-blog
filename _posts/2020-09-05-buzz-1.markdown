@@ -1,0 +1,169 @@
+---
+layout: page
+title:  "Neural Networks From Scratch With Buzz Lightyear (Part 1: Calculus)"
+author: Noel Alemayehu
+date:   2020-09-05 10:40:29 +0300
+categories: programming neural-networks buzz-lightyear
+description: Buzz Lightyear teaches math
+published: true
+---
+<style> {% include /css/style.css %} </style>
+<script src="https://cdn.jsdelivr.net/npm/p5@1.1.9/lib/p5.js"></script>
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+<script src="/assets/blog_scripts/calculus_tutorial.js"></script>
+
+
+> **Warning**: This is not a comprehensive article on neural networks. While it does discuss the mathematical concepts behind them and expects at least some programming experience, there are many aspects of neural networks that are glossed over. The idea is to create one from scratch with only the bare essential knowledge, leaving the option open for further study on your own. It is meant for people who have tried reading the theory and want to see it simplified or people who want a quick intro which they can build upon later. More theory intensive resources I recommend are the Youtube series by [Andrew Ng](https://www.youtube.com/watch?v=CS4cs9xVecg&amp;list=PLkDaE6sCZn6Ec-XTbcX1uRg2_u4xOEky0) and [sentdex](https://www.youtube.com/watch?v=Wo5dMEP_BbI).
+
+
+
+Neural networks are a type of machine learning algorithm that are vaguely inspired by the human brain. They take a certain input and are trained to predict the desired outcome, which could be anything from house prices to pictures of dogs. They are constructed of very simple analogues to neurons, called perceptrons, which are basically linear functions that we will optimize. It's okay if you don't understand what all that means. That's what this article is here for. All that you need to know is that a neural network takes in some numbers and tries to guess the best ones to spit out.
+
+
+
+This article will be split into three parts:
+
+
+
+* **Part 1: Calculus**
+    An introduction to the prerequisite differential calculus that drives neural networks (with a bunch of interactive animations)
+* **Part 2: Perceptron**
+    Using calculus to code a perceptron, the smallest unit of a neural network (with a bunch of interactive animations)
+* **Part 3: Multi-Layer Perceptron (MLP)**
+    Stringing perceptrons end to end as well as stacking them on top of each other to make more powerful models (with a bunch of interactive animations, obviously)
+
+
+
+So, without further ado, let's get into it. Calculus, a terrifying branch of mathematics that's up there with rocket science and neurosurgery when it comes to difficulty, or so they say. It's actually very simple. A very good way to see differential calculus is as the slopes of curves. And I will show it to you in the best way to explain slopes, Buzz Lightyear.
+
+We all know his catchphrase "To Infinity and Beyond". While it's very cool to say, mathematics tells us that he can never actually reach infinity, let alone go beyond it. Math is cruel like that sometimes. But we can (and do) say that Buzz is approaching infinity the more he goes forward and approaching negative infinity the more he goes backward. And we can measure how fast he is approaching infinity with how steeply he is ascending. In math, we call that the slope/gradient of the line.
+
+In the simple equation \( y = x \), the gradient is 1. And we can set his inclination that way to get a natural looking flight path.
+
+<div class="flex-container">
+{% highlight javascript linenos %}
+if (Math.abs(x) >= 2.5)
+    speed *= -1
+        
+x += speed
+
+drawBuzz(x, x, 1) // x, y, and inclination/slope
+{% endhighlight %}
+<div id="canvas-container-0"></div>
+</div>
+
+<div class="flex-container">
+<div>
+<p>
+Well, it sounds very obvious when we're talking about a line, but let's imagine other functions, like a parabola \( y = x^2 \). Then it gets harder to talk about his gradient, because it keeps changing. Sometimes Buzz is going up and other times he's going down. That is where derivatives come in. 
+</p>
+<p>
+A derivative of a function is a formula for its gradient based on \( x \). The derivative of any power function \( y = x^n + c \) is given by \( y = n\cdot x^{n-1} \). Note that any constant number added to the expression is ignored. Actually, the derivative of \( y = mx \) itself is given by this formula. And the derivative of \( y=x^2 \) is \( 2x \). We can see this working when we make Buzz's inclination equal \( 2x \) in the animation. 
+</p>
+</div>
+<div id="canvas-container-1"></div>
+</div>
+
+
+<div class="flex-container">
+<div>
+Another thing to keep in mind is that if the function has a coefficient, we have to keep it as well. So the derivative of \( y = m\cdot x^n + c \) is given by \( y = m\cdot n\cdot x^{n-1} \)
+</div>
+<div id="canvas-container-2"></div>
+</div>
+
+<div class="flex-container">
+<div>
+And derivatives aren't limited to just power functions. Fore xample, the derivative of \( \sin x \) is \( \cos x \).
+</div>
+<div id="canvas-container-3"></div>
+</div>
+
+<div class="flex-container">
+<div>
+You can get the derivatives of any combination of functions as well. But you need to follow a certain rule called the chain rule. What it says is that when you are looking for the derivative of a function within a function, you need to calculate the derivatives in layers and finally multiply them.
+For example, with the function \( y = \sin 3x \), the derivatives would be \( \cos 3x \) for \( \sin 3x \) and \(3\) for \(3x\), leaving us with \(3 \cdot \cos 3x \) as the derivative for the combined function.
+</div>
+<div id="canvas-container-4"></div>
+</div>
+
+
+
+
+
+<div class="flex-container">
+<div>
+Thankfully, addition of functions is very easy to differentiate. We just add the derivatives. For \( \sin 3x + x\), we get the derivative \( 3 \cdot \cos 3x + 1\).
+</div>
+<div id="canvas-container-5"></div>
+</div>
+
+
+Now you know all the calculus you need to code a basic perceptron. How? By combining it with gradient descent. Gradient descent is the core algorithm behind neural networks. It uses the gradient of a function to find the location at which it has the lowest value. Since an increasing function has a positive gradient and a decreasing function has a negative gradient, in either case, going the opposite direction of the gradient takes you to the minimum of the function. 
+
+In the example below, there are 4 Buzz Lightyears scattered on random points in the function, and they all try to go to the minimum using gradient descent. You can use the reset button to make them go all over again. When you do that, you'll notice that some get stuck on the upper "rung" of the function and think that's the best they will do. In that case, we say they are caught in a "local minimum", not the absolute one. You may also notice that some of them disappear over the left edge almost immediately because it keeps going down. Those Lightyears are even closer to the best minimum.
+
+<div class="flex-container">
+{% highlight javascript linenos %}
+
+for (var i = 0; i < xs.length; i++) {
+    var derivative = 3*cos(xs[i]*3)+1
+
+    // subtracts the gradient
+    // 0.01 is for speed purposes
+    xs[i] -= 0.01 * derivative
+
+    // recalculate derivative
+    // because x changed
+    derivative = 3*Math.cos(xs[i]*3)+1
+}
+{% endhighlight %}
+
+<div>
+<div id="canvas-container-6"></div>
+<button class="reset-button" onclick="resetGradient(6)" type="button"> Reset </button>
+</div>
+</div>
+    
+
+There is also a variant of gradient descent called gradient *ascent*. It's fundamentally the same, except it tries to find the *maximum* of the function by going along the gradient. Here it is with the same function. Notice that there are local *maxima* here instead of minima.
+
+<div class="flex-container">
+
+{% highlight javascript linenos %}
+
+for (var i = 0; i < xs.length; i++) {
+    var derivative = 3*cos(xs[i]*3)+1
+
+    // only difference is the plus
+    xs[i] += 0.01 * derivative
+
+    // recalculate derivative
+    // because x changed
+    derivative = 3*Math.cos(xs[i]*3)+1
+}
+{% endhighlight %}
+
+
+<div>
+<div id="canvas-container-7"></div>
+<button class="reset-button" onclick="resetGradient(7)" type="button"> Reset </button>
+</div>
+</div>
+
+
+And that's all there is to it. In the [next part of this series]({% post_url 2020-09-05-buzz-2 %}), we'll see how we can use gradient descent to make a perceptron, the smallest unit of a neural network, and make it find the best-fit line for arbitrary data. 
+
+<script> 
+    var i = 0
+    var e
+
+    var containers = []
+    while((e = document.getElementById("canvas-container-"+i)) && window['container'+i]) {
+        var canvas = new p5(window['container'+i], e)
+
+        containers.push(canvas)
+
+        i++
+    }
+</script>

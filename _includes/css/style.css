@@ -1,0 +1,45 @@
+.option-button, .reset-button, .change-button {
+    border: none;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    position: relative;
+    font-family: "Montserrat", sans-serif;
+    font-size: 14px;
+    line-height: 24px;
+    font-weight: 700;
+    padding: 12px 35px;
+    color: #fff;
+    text-transform: uppercase;
+    border-radius: 3px;
+}
+.reset-button {
+    background-color: #4CAF50; 
+    padding: 15px 32px;
+}
+.change-button {
+    background-color: #4274d6;
+    display: block;
+    padding: 7px 15px;
+    }
+.option-button {
+    background-color: #a12895;
+    display: block;
+    padding: 7px 15px;
+}
+.flex-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;    
+    justify-content: center;
+}
+.flex-container > * {
+    margin: 30px;
+}
+pre {
+   text-align: left !important;
+}

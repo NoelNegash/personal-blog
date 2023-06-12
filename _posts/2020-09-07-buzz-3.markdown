@@ -1,0 +1,416 @@
+---
+layout: blog
+title:  "Neural Networks From Scratch With Buzz Lightyear (Part 3: Multi-Layer Perceptrons)"
+author: Noel Alemayehu
+date:   2020-09-05 21:30:24 +0300
+categories: programming neural-networks buzz-lightyear
+description: Buzz Lightyear teaches math
+published: true
+---
+<style> {% include /css/style.css %} </style>
+<script src="https://cdn.jsdelivr.net/npm/p5@1.1.9/lib/p5.js"></script>
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+<script src="/assets/blog_scripts/mlp_tutorial.js"></script>
+
+
+In the previous article, we learned how to make a single perceptron find a best-fit line, with an introduction to complex models and activation functions. In this article, we will expand those concepts into creating a fully-connected multi-layer neural network by chaining individual perceptrons. This is accomplished by combining gradient descent with backpropagation.
+
+
+A multi-layer perceptron(MLP) is composed of layers, each of which contains a certain amount of perceptrons. When we input some data, each layer calculates an output based on its perceptrons' weights and values, but instead of passing those outputs as the final answer, it passes them onto the next layer for more computation until it reaches the final layer. We call this computation of an output a *forward pass*. The benefit of all this convolution is that it has lots of connections, which means a lot of complexity. As we have already seen, complexity is very useful in a neural network, because it allows us to fit any type of data.
+
+
+In the simulation below, you can see a visual representation of an MLP. The buttons allow you to choose the number of layers and perceptrons per layer. You can also press any perceptron in the simulation to see how the forward pass goes from there.
+
+
+<div class="flex-container">
+<div id="canvas-container-0"></div>
+
+<div>
+    <button class="option-button" onclick="containers[0].layers(3)" type="button"> 3 Layers </button>
+    <button class="option-button" onclick="containers[0].layers(4)" type="button"> 4 Layers </button>
+    <button class="option-button" onclick="containers[0].layers(5)" type="button"> 5 Layers </button>
+</div>
+
+<div>
+    <button class="change-button" onclick="containers[0].perceptrons(1)" type="button"> 1 Perceptron </button>
+    <button class="change-button" onclick="containers[0].perceptrons(2)" type="button"> 2 Perceptrons </button>
+    <button class="change-button" onclick="containers[0].perceptrons(3)" type="button"> 3 Perceptrons </button>
+    <button class="change-button" onclick="containers[0].perceptrons(4)" type="button"> 4 Perceptrons </button>
+</div>
+
+</div>
+
+Note that the number of perceptrons can change from layer to layer. In fact, some very useful variants of neural network such as autoencoders and GANs depend on this property.
+
+
+<div class="flex-container">
+<div id="canvas-container-1"></div>
+<div>
+    <button class="option-button" onclick="containers[1].funnel()" type="button"> Funnel Shape </button>
+    <button class="option-button" onclick="containers[1].diamond()" type="button"> Diamond Shape </button>
+    <button class="option-button" onclick="containers[1].autoencoder()" type="button"> Autoencoder </button>
+</div>
+</div>
+
+
+Because there are so many weights, biases, inputs and biases involved in a neural network, it becomes practically impossible to manipulate them as individual values. This is why machine learning libraries (and us, starting now) use arrays, more accurately matrices and tensors, to represent an MLP. For simplicity's sake, every matrix used in this article will be one dimensional. It is also important to note that all matrix multiplication in the code will be element-wise, meaning
+
+<div class="flex-container">
+<p>
+\(\begin{pmatrix} x_1 \\ x_2 \end{pmatrix} \cdot \begin{pmatrix} y_1 \\ y_2 \end{pmatrix} = \begin{pmatrix} x_1 \cdot y_1 \\ x_2 \cdot y_2 \end{pmatrix}\)
+</p>
+</div>
+
+Each perceptron will be a matrix of weights, one for each input (output of the previous layer), and one bias. That way, we can find the output of a perceptron by multiplying in with a matrix of the input data and adding the bias, like so.
+
+
+<div class="flex-container">
+<p>
+\(\sum({\begin{pmatrix} w_1 \\ w_2 \end{pmatrix} \cdot \begin{pmatrix} x_1 \\ x_2 \end{pmatrix}}) + b \\ \sum({\begin{pmatrix} w_1 \cdot x_1 \\ w_2 \cdot x_2 \end{pmatrix}}) + b \\ w_1 \cdot x_1 + w_2 \cdot x_2 + b\)
+</p>
+</div>
+
+In the same vein, we can define a layer as an array of perceptrons and an MLP as an array of layers. By describing them in this way, we significantly reduce the number of variables we have to work with and simplify our manipulations on them (see the `eval` functions in the accompanying code).  Now we can calculate perceptrons and layers with thousands of variables in just one function call. In the simulation below, you can hover over each perceptron below to see how many parameters(weights+bias) it has.
+
+<div class="flex-container">
+{% highlight javascript linenos %}
+
+    // a percptron is an array of weights
+    class Perceptron extends Array{
+        constructor (numInputs) {
+            for (var i = 0; i &lt; numInputs; i++) {
+                this.push(random(-1,1))
+            }
+            this.bias = random(-1,1)
+        }
+        eval = function (d) {
+            return sum(this * d) + this.bias
+        }
+    }
+
+    // likewise, a layer is an array of perceptrons
+    class Layer extends Array {
+        constructor (numPerceptrons, numInputs) {
+            super()
+            for (var i = 0; i &lt; numPerceptrons; i++) {
+                this.push(new Perceptron(numInputs))
+            }
+        }
+        eval = function (d) {
+            var res = []
+            this.lastInput = d
+            for (var i &lt; 0; i &lt; this.length; i++) {
+                res.push(this[i].eval(d))
+            }
+            this.lastOutput = d
+            return res
+        }
+    }
+
+    // finally, an MLP is an array of layers
+    class MLP extends Array {
+        constructor (schema) {
+            super()
+            for (var i = 1; i &lt; schema.length; i++) {
+                this.push(new Layer(schema[i], schema[i-1]))
+            }
+        }
+    }
+
+    // first element describes the incoming data
+    // the rest describe the number of perceptrons per layer
+    var schema = [1,1,2,3,4]
+    var mlp = new MLP(schema)
+{% endhighlight %}
+<div id="canvas-container-2"></div>
+</div>
+
+
+Since we have put down our MLP components in code, we have all we need to implement the forward pass algorithm and see how the it maps out on a graph.
+
+<div class="flex-container">
+{% highlight javascript linenos %}
+    MLP.forward = function (input) {
+
+        // feed forward the output of current layer
+        // as input of next layer
+        for (var i = 0; i &lt; this.length; i++)
+            input = this[i].eval(input)
+
+        return input
+    }
+    
+    var schema = [1,1,2,3,4]
+    var mlp = new MLP(schema)
+{% endhighlight %}
+<div>
+    <div id="canvas-container-3"></div>
+    <button class="reset-button" onclick="currentContainer=3;containers[3].mlp = new MLP([1,1,2,3,4,1])"> Reset </button>
+</div>
+
+</div>
+
+You might be thinking "Huh? Isn't the whole point of an MLP that it's more complex than a line? What's the difference between this and a single perceptron?". That is 100% correct. Nesting perceptrons on their own is just applying transformations on the line, so it doesn't change the shape of the graph. This is where ReLU comes in. ReLU is an activation function (like sigmoid) that takes a line and clips off its negative side. You can see what appling ReLU does to random lines below.
+
+<div class="flex-container">
+<div>
+    <div id="canvas-container-4"></div>
+    <button class="reset-button" onclick="containers[4].m = containers[4].random(-1,1);containers[4].b = containers[4].random(-1,1);"> Reset </button>
+</div>
+</div>
+
+While it might seem like a trivial change, it is enough to make our MLP adopt shapes much more complex than quadratic and cubic functions, because each perceptron has potential to change the direction of the line. The derivative of a ReLU is also very convenient. It is 1 for the line segment, and 0 for the flattened segment.
+
+
+<div class="flex-container">
+{% highlight javascript linenos %}
+    // we don't make the last layer a ReLU 
+    // because we want the output to allow negative values
+    var schema = [1, [1,'relu'], [2,'relu'], [3,'relu'], 4]
+    var mlp = new MLP(schema)
+{% endhighlight %}
+<div>
+    <div id="canvas-container-5"></div>
+    <button class="reset-button" onclick="currentContainer=5;containers[5].mlp = new MLP([1,[1,'relu'],[2,'relu'],[3,'relu'],4,1])"> Reset </button>
+</div>
+</div>
+
+<p>
+Speaking of derivatives, I think this is a good place to refresh and go a little deeper into the calculus we have glossed over. If you already know calculus, feel free to skip this section. If you don't, let's go back and talk about how derivatives are the slope of a curve at a certain point. Since they are slopes, we can represent them as fractions. Like we say \( m = \dfrac{\Delta y}{\Delta x} \) for a line, we can say  \( m = \dfrac{\partial y}{\partial x} \) for any graph in general (lines included). It is read as the derivative of "y in terms of x". In a normal perceptron, we know that our cost function is \( c(x) = {(x-y)}^2 \), its derivative in terms of \(x\) is \(2 \cdot (x-y) \) and our perceptron is \(p(x) = w \cdot input + b\). In a normal perceptron, the cost would be \(c(p(x))\) and we are supposed to find the derivative of \(c(p(x))\) in terms of w (i.e \(\dfrac{\partial c(p(x))}{\partial w}\)).
+</p>
+
+<p>
+Since we only know it in terms of \(p(x)\) (i.e \(\dfrac{\partial c(p(x))}{\partial p(x)} = 2 \cdot (p(x)-y)\)), it looks like we are at a dead end. But this is where a convenient property of fractions comes into play. We can use the property \(\dfrac{y}{x}\cdot\dfrac{x}{z} = \dfrac{y}{z}\) to rephrase \(\dfrac{\partial c(p(x))}{\partial w}\) as \(\dfrac{\partial c(p(x))}{\partial p(x)} \cdot \dfrac{\partial p(x)}{\partial w}\) which simplifies into \(2 \cdot (p(x)-y) \cdot input \). Seem familiar? It's the chain rule. I showed it to you in this slightly more verbose way to explain how backpropagation works.
+</p>
+
+<p>
+Backpropagation is an algorithm that uses the chan rule of calculus to calculate derivatives for perceptrons within perceptrons or, more intuitively, perceptrons that feed into other perceptrons. Let's say you have two perceptrons(\(p_1\) and \(p_2\)) joined end to end. That gives you a structure and equations that look like this.
+</p>
+
+<div class="flex-container">
+    <p style="height:400px; padding:170px 0;">
+    \(p_1 = w_1 \cdot x + b_1 \\ p_2 = w_2 \cdot p_1 + b_2 \\ cost = (p_2 - y)^2\)</p>
+    <div id="canvas-container-6"></div>
+</div>
+
+<p>
+To do gradient descent, we need to be able to find the derivative of the cost with respect to both perceptrons. Let's start with the easier \(p_2\).
+</p>
+
+<div class="flex-container">
+<p>\(\dfrac{\partial cost}{\partial p_2} = 2 \cdot (p_2 - y)\)</p>
+</div>
+
+<p>
+How about \(p_1\)? We can use chain rule like so.
+</p>
+
+<div class="flex-container">
+<p>\(\dfrac{\partial cost}{\partial p_1} = \dfrac{\partial cost}{\partial p_2} \cdot \dfrac{\partial p_2}{\partial p_1} = 2 \cdot (p_2 - y) \cdot w_2\) </p>
+</div>
+
+See the pattern? The derivative for one perceptron is depends on the one immediately next to it. Extending the chain to three perceptrons makes it even clearer.
+
+
+<div class="flex-container">
+    <p style="height:400px; padding:170px 0;">\(p_1 = w_1 \cdot x + b_1 \\ p_2 = w_2 \cdot p_1 + b_2 \\ p_3 = w_3 \cdot p_2 + b_3\\ cost = (p_3 - y)^2\) </p>
+    <div id="canvas-container-7"></div>
+</div>
+
+
+<div class="flex-container">
+<p>\(\dfrac{\partial cost}{\partial p_3} = 2 \cdot (p_3 - y)\) </p>
+</div>
+
+<div class="flex-container">
+<p>\(\dfrac{\partial cost}{\partial p_2} = \dfrac{\partial cost}{\partial p_3} \cdot \dfrac{\partial p_3}{\partial p_2} = 2 \cdot (p_3 - y) \cdot w_3\) </p>
+</div>
+
+<div class="flex-container">
+<p>\(\dfrac{\partial cost}{\partial p_1} = \dfrac{\partial cost}{\partial p_3} \cdot \dfrac{\partial p_3}{\partial p_2}\cdot \dfrac{\partial p_2}{\partial p_1} =2 \cdot (p_3 - y) \cdot w_3 \cdot w_2\)</p>
+</div>
+
+Let's analyze one last structure before we put this into code. What happens when a perceptron feeds into two instead of one?
+
+<div class="flex-container">
+<p style="height:400px; padding:170px 0;">\(p_1 = w_1 \cdot x + b_1 \\ p_2 = w_2 \cdot p_1 + b_2 \\ p_3 = w_3 \cdot p_1 + b_3 \\ p_4 = w_4 \cdot p_2 + w_5 \cdot p_3 + b \\ cost = (p_4 - y)^2\) </p>
+<div id="canvas-container-8"></div>
+</div>
+
+<div class="flex-container">
+<p>\(\dfrac{\partial cost}{\partial p_4} = 2 \cdot (p_4 - y)\) </p>
+</div>
+
+<div class="flex-container">
+<p>\(\dfrac{\partial cost}{\partial p_2} = \dfrac{\partial cost}{\partial p_4} \cdot \dfrac{\partial p_4}{\partial p_2} = 2 \cdot (p_4 - y) \cdot w_4 \ \dfrac{\partial cost}{\partial p_3} = \dfrac{\partial cost}{\partial p_4} \cdot \dfrac{\partial p_4}{\partial p_3} = 2 \cdot (p_4 - y) \cdot w_5\)</p>
+</div>
+
+Since P1 has both a presence in P2 and P3, we sum up the derivatives.
+
+
+<div class="flex-container">
+<p>\(\dfrac{\partial cost}{\partial p_1} = \dfrac{\partial cost}{\partial p_2} \cdot \dfrac{\partial p_2}{\partial p_1} + \dfrac{\partial cost}{\partial p_3} \cdot \dfrac{\partial p_3}{\partial p_1} = 2 \cdot (p_4 - y) \cdot w_4 \cdot w_2 + 2 \cdot (p_4 - y) \cdot w_5 \cdot w_3\)</p>
+</div>
+
+Don't worry if it doesn't sink in immediately. The important thing is to grasp that when this is scaled up, any perceptron's derivative can be calculated by using the derivatives of the others it feeds into. It's the forward pass in reverse.
+
+Once we understand this, finding the gradients for all the perceptrons becomes simple, and we can run gradient descent on our MLP.
+
+<div class="flex-container">
+{% highlight javascript linenos %}
+    MLP.backward = function (desired) {
+        // calculate cost derivatives for the first layer
+        // multiply with activation function derivs
+        var global_derivs = cost_deriv(this[this.length-1].lastOutput, desired) * this[this.length-1].activation_derivs()
+        var prev_derivs;
+        for (var i = this.length-1; i >= 0; i--) {
+            var l = this[i]
+            // clone of this layer to store derivatives
+            var d = this.derivs[i]
+            if (i != 0)
+                // store derivs for previous layer if it exists
+                prev_derivs = new Matrix(this[i-1].length, 0)
+
+            for (var j = 0; j &lt; d.length; j++) {
+                var p = new Matrix(d[j].length, global_derivs[j]) * l.lastInput
+
+                d[j] = d[j] + p
+                d[j].bias += global_derivs[j]
+                if (i == 0) continue
+                for (var k = 0; k &lt; prev_derivs.length; k++) {
+                    prev_derivs[k] += global_derivs[j] * l[j][k]
+                }
+            }
+            global_derivs = prev_derivs
+        }
+    }
+    MLP.applyDerivs = function () {
+        for (var i = 0 ; i &lt; this.derivs.length; i++) {
+            for (var j = 0 ; j &lt; this.derivs[i].length; j++) {
+                for (var k = 0; k &lt; this.derivs[i][j].length; k++) {
+                    this[i][j][k] -= WEIGHT_LRATE * this.derivs[i][j][k]
+                }
+
+                this[i][j].bias -= BIAS_LRATE * this.derivs[i][j].bias
+            }
+        }
+
+        this.clearDerivs()
+    }
+    var schema = [1,1,2,3,4]
+    var mlp = new MLP(schema)
+{% endhighlight %}
+<div>
+    <div id="canvas-container-9"></div>
+    <button class="reset-button" onclick="currentContainer=9;containers[9].mlp = new MLP([1,[3,'relu'],[3,'relu'],[3,'relu'],4,1])"> Reset </button>
+</div>
+</div>
+
+And that's it. We have made a fully operational MLP. We can even change it to a logistic regression network by just changing the last layer's activation function and the cost, like below. 
+
+
+**Note:** You might want to stop it after running because it tends to eat up a lot of computing power and slow down the webpage.
+
+<div class="flex-container">
+{% highlight javascript linenos %}
+    cost_deriv = neglog_cost_deriv
+    var schema = [2,4,6,[8,'relu'],8,[1,'sigmoid']]
+    var mlp = new MLP(schema)
+{% endhighlight %}
+<div>
+    <div id="canvas-container-10"></div>
+    <button class="reset-button" onclick="currentContainer=10;containers[10].mlp = new MLP([2,[30,'leakyrelu'],[30,'leakyrelu'],[30,'leakyrelu'],30,[1,'sigmoid']]);containers[10].play=true"> Reset </button>
+    <button class="reset-button" onclick="containers[10].play = false"> Stop </button>
+</div>
+</div>
+
+We will finish this article by exploring some slightly more in-depth problems and solutions that come with an MLP. Since this article is hardly meant to be comprehensive, I recommend consulting more sources after it. There are great lectures by Andrew Ng, Andrej Karpathy and Geoffrey Hinton on Youtube, as well as a good practical series by sentdex.
+
+<h4>Learning Rate</h4>
+
+When we were implementing the gradient descent and perceptron algorithms, I glossed over some very important numbers in the code, the learning rates.
+
+
+{% highlight javascript linenos %}
+    // 0.01 is for speed purposes
+    xs[i] -= 0.01 * derivative
+    . . . 
+    perceptron[0] += 0.3*adj[0]
+    perceptron[1] += 0.3*adj[1]
+    perceptron[2] += 0.3*adj[2]
+{% endhighlight %}
+
+<p>
+It is important not to just subtract the gradient itself from the weight, as it can lead to jumps that are "too big" and miss the optimum solution. In the simulation below, you can see how a learning rate of 1 works on the graph of \(x^2\), compared to a slightly better 0.9, a reasonable 0.3 and an unreasonable 0.05. Click on the graph to trigger one pass.
+</p>
+
+<div class="flex-container">
+<div>
+    <div id="canvas-container-11"></div>
+    <button class="reset-button" onclick="containers[11].xs=[-1]"> Reset </button>
+</div>
+
+<div>
+    <button class="option-button" onclick="containers[11].xs=[-1];containers[11].a = 1" type="button"> 1 </button>
+    <button class="option-button" onclick="containers[11].xs=[-1];containers[11].a = 0.9" type="button"> 0.9 </button>
+    <button class="option-button" onclick="containers[11].xs=[-1];containers[11].a = 0.3" type="button"> 0.3 </button>
+    <button class="option-button" onclick="containers[11].xs=[-1];containers[11].a = 0.05" type="button"> 0.05 </button>
+</div>
+</div>
+
+
+As you can see, a badly picked learning rate like 1 can lead your algorithm to hover above the optimum and never reach it. A slightly less worse rate like 0.9 can keep missing the optimum value by overshooting and take a long time to converge. On the other hand, an unnecessarily small rate like 0.05 wastes time and energy by undershooting. In the end, only experience and educated guesses can get you a good or ideal learning rate, in this case 0.3.
+
+
+It is useful to know that there are more sophisticated algorithms to manage learning rates, like RMSProp, AdaMax and Adam, which are used almost ubiquitously in practical applications, but are outside the scope of this article.
+
+
+<h4>Exploding &amp; Vanishing Gradients</h4>
+
+<p>
+In backpropagation, we have seen that a perceptron's derivative is calculated by multiplying the derivative of the first layer with weights from the others. In deep networks(networks with many layers), this can present a problem. Let's imagine our weights are all smaller than one, maybe an average of 0.5. In that case, for a perceptron \(x\) layers deep, we get the derivative multiplies by \(0.5^x\), which rapidly goes to zero. We call this a vanishing gradient. It is very harmful for an MLP because a zero derivative means zero gradient, which means zero gradient descent. Vanishing gradients make an MLP freeze and stop improving. 
+</p>
+
+<p>
+On the other hand, if the weights have an average value of 2, we get our derivative multiplied by \(2^x\), which goes to large values really fast. A ten layer network would have gradient of 1024. You can see why we call them exploding gradients. Just like having a big learning rate makes the MLP skip over optimal weights, exploding gradients make a network unstable and even lead "infinite" weights, which crash the network entirely.
+</p>
+
+A solution to both problems is to ensure that the weights are initialized so that the gradients get multiplied by a reasonable number. There are schemes such as normal distributions and Xavier initialization, which you can read about in [this article](https://towardsdatascience.com/weight-initialization-in-neural-networks-a-journey-from-the-basics-to-kaiming-954fb9b47c79).
+
+
+<h4>Regularization</h4>
+
+
+Another problem that plagues neural networks is their tendency to overfit. Overfitting is when the model becomes a little *too* good at predicting the dataset, at the expense of its predictive powers outside it. Think of it like this. When you want to predict a trend, you want a line that goes smoothly in that direction. If you have a lot of micro jumps and fluctuations in the prediction, it calls into judgment how effective it is. Someone saying Apple stock is going up tomorrow after seeing the general trend is more credible than someone who predicts the ups and downs it will have every minute of tomorrow by memorizing every minute it has been on the market so far.
+
+
+A method commonly used for regularization is ensuring the weights are as small as possible, to avoid huge spikes or unstable behavior. We can do this easily by adding the magnitude of the weight to the cost. [This article](https://towardsdatascience.com/how-to-improve-a-neural-network-with-regularization-8a18ecda9fe3) is very good at explaining it.
+
+
+<h4>Batches</h4>
+
+
+Using batches in a neural network means adding the derivatives of multiple pieces of data before updating the network's weights. It gives a marked performance advantage because we can do one backward pass for many forward passes. It also makes sense intuitively because it seems counter-productive to change the entire network based on one piece of data. It sounds like the entire government changing because one person said they didn't like it. But batches are more like democracy. Every voices their opinions and the most prevalent one is adopted.
+
+
+<h3>Conclusion</h3>
+
+
+I hope this article has been helpful in understanding and implementing your own neural networks from scratch. It is far from comprehensive, so I recommend you consult other sources. After all, the search for knowledge is never over.
+
+
+To infinity and beyond.
+
+
+<script>
+    var i = 0
+    var e
+    var containers = []
+
+    while((e = document.getElementById("canvas-container-"+i)) && window['container'+i]) {
+        var canvas = new p5(window['container'+i], e)
+        containers.push(canvas)
+        i++
+    }
+</script>
+

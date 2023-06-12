@@ -1,0 +1,67 @@
+---
+title: Code, Canvas & Crescendo
+subtitle: A Repository of Random Riffs
+layout: default
+callouts: home_callouts
+show_sidebar: true
+---
+<div class="container">
+  <h1 class="title">{{ page.title }}</h1>
+  <br />
+  <br /> 
+  <p>{{ site.description }}</p>
+</div>
+<br />
+<br />
+<br />
+<hr />
+
+<div class="container">
+  <div class="columns is-multiline">
+    {% for post in paginator.posts %}
+      <div class="column is-one-third">
+        <div class="card">
+          <div class="card-image">
+            <figure class="image is-4by3">
+              <img src="{{ post.image }}" alt="{{ post.title }}">
+            </figure>
+          </div>
+          <div class="card-content">
+            <div class="content">
+              <h2 class="title is-4">{{ post.title }}</h2>
+              <p>{{ post.excerpt | strip_html }}</p>
+              <a href="{{ post.url }}" class="button is-link">Read more</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination links -->
+  <div class="pagination is-centered">
+    {% if paginator.total_pages > 1 %}
+      {% if paginator.previous_page %}
+        <a href="{{ paginator.previous_page_path }}" class="pagination-previous">Previous</a>
+      {% else %}
+        <a href="#" class="pagination-previous" disabled>Previous</a>
+      {% endif %}
+      {% if paginator.next_page %}
+        <a href="{{ paginator.next_page_path }}" class="pagination-next">Next</a>
+      {% else %}
+        <a href="#" class="pagination-next" disabled>Next</a>
+      {% endif %}
+      <ul class="pagination-list">
+        {% for page in (1..paginator.total_pages) %}
+          {% if page == paginator.page %}
+            <li><a href="#" class="pagination-link is-current">{{ page }}</a></li>
+          {% elsif page == 1 %}
+            <li><a href="{{ '/' | absolute_url }}" class="pagination-link">{{ page }}</a></li>
+          {% else %}
+            <li><a href="{{ site.paginate_path | replace: ':num', page | absolute_url }}" class="pagination-link">{{ page }}</a></li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+</div>
