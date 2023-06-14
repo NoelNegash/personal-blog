@@ -3,6 +3,7 @@ layout: blog
 title:  "Neural Networks From Scratch With Buzz Lightyear (Part 3: Multi-Layer Perceptrons)"
 author: Noel Alemayehu
 date:   2020-09-05 21:30:24 +0300
+image: "/assets/blog_images/post_covers/buzz-cover.png"
 categories: programming neural-networks buzz-lightyear
 description: Buzz Lightyear teaches math
 published: true
@@ -13,7 +14,7 @@ published: true
 <script src="/assets/blog_scripts/mlp_tutorial.js"></script>
 
 
-In the previous article, we learned how to make a single perceptron find a best-fit line, with an introduction to complex models and activation functions. In this article, we will expand those concepts into creating a fully-connected multi-layer neural network by chaining individual perceptrons. This is accomplished by combining gradient descent with backpropagation.
+In the [previous article]({% post_url 2020-09-05-buzz-2 %}), we learned how to make a single perceptron find a best-fit line, with an introduction to complex models and activation functions. In this article, we will expand those concepts into creating a fully-connected multi-layer neural network by chaining individual perceptrons. This is accomplished by combining gradient descent with backpropagation.
 
 
 A multi-layer perceptron(MLP) is composed of layers, each of which contains a certain amount of perceptrons. When we input some data, each layer calculates an output based on its perceptrons' weights and values, but instead of passing those outputs as the final answer, it passes them onto the next layer for more computation until it reaches the final layer. We call this computation of an output a *forward pass*. The benefit of all this convolution is that it has lots of connections, which means a lot of complexity. As we have already seen, complexity is very useful in a neural network, because it allows us to fit any type of data.
@@ -400,7 +401,6 @@ I hope this article has been helpful in understanding and implementing your own 
 
 
 To infinity and beyond.
-
 
 <script>
     var i = 0

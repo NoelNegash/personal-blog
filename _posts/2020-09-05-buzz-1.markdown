@@ -3,6 +3,7 @@ layout: page
 title:  "Neural Networks From Scratch With Buzz Lightyear (Part 1: Calculus)"
 author: Noel Alemayehu
 date:   2020-09-05 10:40:29 +0300
+image: "/assets/blog_images/post_covers/buzz-cover.png"
 categories: programming neural-networks buzz-lightyear
 description: Buzz Lightyear teaches math
 published: true

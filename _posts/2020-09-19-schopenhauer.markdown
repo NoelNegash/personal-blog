@@ -3,6 +3,7 @@ layout: post
 title:  Schopenhauer & Object Oriented Programming
 author: Noel Alemayehu
 date:   2020-09-19 14:04:21 +0300
+image: "/assets/blog_images/post_covers/schopenhauer-cover.jpg"
 categories: schopenhauer programming
 description: How a 19th century crank (possibly) anticipated Java
 published: true

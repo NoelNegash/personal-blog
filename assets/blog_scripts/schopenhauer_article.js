@@ -130,6 +130,7 @@ class Animal extends Circle {
     this.life = 50
     this.split = false
     this.isAnimal = true
+    this.ignore = true
   }
   update(p) {
     super.update(p)
@@ -137,7 +138,6 @@ class Animal extends Circle {
       if (this.life <= 25&& !this.split) {
         this.split = true
         var a = new Animal(this.pos.x, this.pos.y)
-        a.ignore = true
         //a.vel = this.vel.mult(-1)
         //a.pos = a.pos.add(a.vel*5)
         p.objects.push(a)
@@ -319,6 +319,7 @@ function container0(p) {
         o.applyForce(new Vector(0,10))
       }
 
+      if (o.vel.mag() == 0) continue
       // collisions
       for (var j = 0; j < p.objects.length; j++) {
         if (i == j) continue
@@ -449,7 +450,7 @@ function container4(p) {
   p.setup = function () {
     p.presetup()
 
-    p.createCanvas(400, 400);
+    p.createCanvas(600, 500);
     for (var i = 0; i < 3; i++) {
       p.objects.push(new Mage(p.random(800),p.random(400)))
     }

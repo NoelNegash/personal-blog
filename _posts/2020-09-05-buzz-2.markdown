@@ -3,6 +3,7 @@ layout: post
 title:  "Neural Networks From Scratch With Buzz Lightyear (Part 2: Perceptrons)"
 author: Noel Alemayehu
 date:   2020-09-05 21:30:24 +0300
+image: "/assets/blog_images/post_covers/buzz-cover.png"
 categories: programming neural-networks buzz-lightyear
 description: Buzz Lightyear teaches math
 published: true
@@ -13,6 +14,7 @@ published: true
 <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 <script src="/assets/blog_scripts/perceptron_tutorial.js"></script>
 
+In the [last article]({% post_url 2020-09-05-buzz-1 %}), Buzz showed us the basic ideas of calculus and derivatives. In this article, we will use those concepts to make a perceptron.
 
 Before we go ahead and start making one, it's useful to clarify what a perceptron (and a neural network in general) is. It is an object vaguely inspired by the biological neuron that takes in an input and maps it to a certain output, basically a function. In general, there are two types of perceptrons, ones that output continuous values (called linear regression models) and ones that output discrete values (logistic regression models). Let's start with the former.
 
