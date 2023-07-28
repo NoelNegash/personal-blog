@@ -212,6 +212,6 @@ There were certain spots though, where it wasn't simply comparing. For example, 
 
 There were also some points which required a byte be less than a number instead of equal. After dealing with these edge cases, we got a list of numbers `[70, 76, 65, 71, 123, 95, 75, 51, 101, 98, 95, 48, 110, 95, 83, 104, 49, 110, 105, 110, 103, 95, 125]`. Converting them into characters gave us the flag `FLAG{_K3eb_0n_Sh1ning_}`.
 
-Sadly, I don't have any screenshots of the other challenges because they were web based and CyberTalents took them down when thehackathon ended. 
+Sadly, I don't have any screenshots of the other challenges because they were web based and CyberTalents took them down when the hackathon ended. 
 
-All in all, this hackathon was lots of fun and and I'm interersted in doing it again if I can. I'll make sure to document thew hole thing too.
+All in all, this hackathon was lots of fun and and I'm interersted in doing it again if I can. I'll make sure to document the whole thing too.
