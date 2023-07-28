@@ -9,9 +9,6 @@ description: Buzz Lightyear teaches math
 published: true
 ---
 <style> {% include /css/style.css %} </style>
-<script src="https://cdn.jsdelivr.net/npm/p5@1.1.9/lib/p5.js"></script>
-<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
-<script src="/assets/blog_scripts/calculus_tutorial.js"></script>
 
 
 > **Warning**: This is not a comprehensive article on neural networks. While it does discuss the mathematical concepts behind them and expects at least some programming experience, there are many aspects of neural networks that are glossed over. The idea is to create one from scratch with only the bare essential knowledge, leaving the option open for further study on your own. It is meant for people who have tried reading the theory and want to see it simplified or people who want a quick intro which they can build upon later. More theory intensive resources I recommend are the Youtube series by [Andrew Ng](https://www.youtube.com/watch?v=CS4cs9xVecg&amp;list=PLkDaE6sCZn6Ec-XTbcX1uRg2_u4xOEky0) and [sentdex](https://www.youtube.com/watch?v=Wo5dMEP_BbI).
@@ -154,6 +151,11 @@ for (var i = 0; i < xs.length; i++) {
 
 
 And that's all there is to it. In the [next part of this series]({% post_url 2020-09-05-buzz-2 %}), we'll see how we can use gradient descent to make a perceptron, the smallest unit of a neural network, and make it find the best-fit line for arbitrary data. 
+
+
+<script src="https://cdn.jsdelivr.net/npm/p5@1.1.9/lib/p5.js"></script>
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+<script src="/assets/blog_scripts/calculus_tutorial.js"></script>
 
 <script> 
     var i = 0

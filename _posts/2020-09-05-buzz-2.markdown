@@ -9,10 +9,6 @@ description: Buzz Lightyear teaches math
 published: true
 ---
 <style> {% include /css/style.css %} </style>
-<script src="https://code.jquery.com/jquery-3.7.0.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/p5@1.1.9/lib/p5.js"></script>
-<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
-<script src="/assets/blog_scripts/perceptron_tutorial.js"></script>
 
 In the [last article]({% post_url 2020-09-05-buzz-1 %}), Buzz showed us the basic ideas of calculus and derivatives. In this article, we will use those concepts to make a perceptron.
 
@@ -295,6 +291,12 @@ If you are wondering why the quadratic function can model circles and ellipses, 
 </p>
 
 And that is it for perceptrons. Read [the next article]({% post_url 2020-09-07-buzz-3 %}) to see how we can combine perceptrons to create much more powerful and expressive neural networks.
+
+
+<script src="https://code.jquery.com/jquery-3.7.0.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/p5@1.1.9/lib/p5.js"></script>
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+<script src="/assets/blog_scripts/perceptron_tutorial.js"></script>
 
 <script> 
     jQuery(".reset-button").click((e) => {

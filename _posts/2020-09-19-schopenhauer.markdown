@@ -9,10 +9,6 @@ description: How a 19th century crank (possibly) anticipated Java
 published: true
 --- 
 <style> {% include /css/style.css %} </style>
-<script src="https://code.jquery.com/jquery-3.7.0.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/p5@1.1.9/lib/p5.js"></script>
-<script src="/assets/blog_scripts/schopenhauer_article.js"></script>
-
 
 2020 has been a wild ride to say the least. January alone started with a million Hong Kong protesters on a New Year's Day march, the Australian bush catching fire(ironic considering UN declared it the International Year of Plant Health), the assassination of an Iranian major general by a US drone, prompting speculations about a new war, and if that wasn't enough, COVID-19 came along, as of now with 28.8 million infections, 900k+ dead, mass lockdowns, and the largest economic recession since the Great Depression. Honestly, so much bad stuff has happened this year that just writing it would probably trigger someone's PTSD. Instead I leave you with this [only slightly depressing recap](https://www.boredpanda.com/2020-year-recap) & video. After all, images are worth a thousand words.
 
@@ -175,6 +171,11 @@ First, let's get rid of the animals; there has been enough suffering. Note that 
 Isn't that amazing? This is where Schopenhauer and I part ways. Far from being a pessimist, I believe that we are destined for great things. We will will the will (say that three times fast) through our desire to better ourselves, and in doing so, change this negative-sum world into a positive one. If Schopenhauer bumped into you on the street, he would check his pockets, then try to dissuade you from suing. I would apologize and give you a wink.
 
 How would you like to be a Level 5 Mage?
+
+
+<script src="https://code.jquery.com/jquery-3.7.0.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/p5@1.1.9/lib/p5.js"></script>
+<script src="/assets/blog_scripts/schopenhauer_article.js"></script>
 
 <script> 
     jQuery(".reset-button").click((e) => {

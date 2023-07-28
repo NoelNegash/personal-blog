@@ -9,9 +9,6 @@ description: Buzz Lightyear teaches math
 published: true
 ---
 <style> {% include /css/style.css %} </style>
-<script src="https://cdn.jsdelivr.net/npm/p5@1.1.9/lib/p5.js"></script>
-<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
-<script src="/assets/blog_scripts/mlp_tutorial.js"></script>
 
 
 In the [previous article]({% post_url 2020-09-05-buzz-2 %}), we learned how to make a single perceptron find a best-fit line, with an introduction to complex models and activation functions. In this article, we will expand those concepts into creating a fully-connected multi-layer neural network by chaining individual perceptrons. This is accomplished by combining gradient descent with backpropagation.
@@ -401,6 +398,11 @@ I hope this article has been helpful in understanding and implementing your own 
 
 
 To infinity and beyond.
+
+
+<script src="https://cdn.jsdelivr.net/npm/p5@1.1.9/lib/p5.js"></script>
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+<script src="/assets/blog_scripts/mlp_tutorial.js"></script>
 
 <script>
     var i = 0
