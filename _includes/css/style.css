@@ -43,3 +43,8 @@
 pre {
    text-align: left !important;
 }
+
+h4, h3 {
+    font-weight: bold;
+    margin: 10px auto;
+}

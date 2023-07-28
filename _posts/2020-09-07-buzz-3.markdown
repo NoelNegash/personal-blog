@@ -324,7 +324,7 @@ And that's it. We have made a fully operational MLP. We can even change it to a 
 
 We will finish this article by exploring some slightly more in-depth problems and solutions that come with an MLP. Since this article is hardly meant to be comprehensive, I recommend consulting more sources after it. There are great lectures by Andrew Ng, Andrej Karpathy and Geoffrey Hinton on Youtube, as well as a good practical series by sentdex.
 
-<h4>Learning Rate</h4>
+#### Learning Rate
 
 When we were implementing the gradient descent and perceptron algorithms, I glossed over some very important numbers in the code, the learning rates.
 
@@ -363,7 +363,7 @@ As you can see, a badly picked learning rate like 1 can lead your algorithm to h
 It is useful to know that there are more sophisticated algorithms to manage learning rates, like RMSProp, AdaMax and Adam, which are used almost ubiquitously in practical applications, but are outside the scope of this article.
 
 
-<h4>Exploding &amp; Vanishing Gradients</h4>
+#### Exploding &amp; Vanishing Gradients
 
 <p>
 In backpropagation, we have seen that a perceptron's derivative is calculated by multiplying the derivative of the first layer with weights from the others. In deep networks(networks with many layers), this can present a problem. Let's imagine our weights are all smaller than one, maybe an average of 0.5. In that case, for a perceptron \(x\) layers deep, we get the derivative multiplies by \(0.5^x\), which rapidly goes to zero. We call this a vanishing gradient. It is very harmful for an MLP because a zero derivative means zero gradient, which means zero gradient descent. Vanishing gradients make an MLP freeze and stop improving. 
@@ -376,7 +376,7 @@ On the other hand, if the weights have an average value of 2, we get our derivat
 A solution to both problems is to ensure that the weights are initialized so that the gradients get multiplied by a reasonable number. There are schemes such as normal distributions and Xavier initialization, which you can read about in [this article](https://towardsdatascience.com/weight-initialization-in-neural-networks-a-journey-from-the-basics-to-kaiming-954fb9b47c79).
 
 
-<h4>Regularization</h4>
+#### Regularization
 
 
 Another problem that plagues neural networks is their tendency to overfit. Overfitting is when the model becomes a little *too* good at predicting the dataset, at the expense of its predictive powers outside it. Think of it like this. When you want to predict a trend, you want a line that goes smoothly in that direction. If you have a lot of micro jumps and fluctuations in the prediction, it calls into judgment how effective it is. Someone saying Apple stock is going up tomorrow after seeing the general trend is more credible than someone who predicts the ups and downs it will have every minute of tomorrow by memorizing every minute it has been on the market so far.
@@ -385,7 +385,7 @@ Another problem that plagues neural networks is their tendency to overfit. Overf
 A method commonly used for regularization is ensuring the weights are as small as possible, to avoid huge spikes or unstable behavior. We can do this easily by adding the magnitude of the weight to the cost. [This article](https://towardsdatascience.com/how-to-improve-a-neural-network-with-regularization-8a18ecda9fe3) is very good at explaining it.
 
 
-<h4>Batches</h4>
+<h3>Batches</h3>
 
 
 Using batches in a neural network means adding the derivatives of multiple pieces of data before updating the network's weights. It gives a marked performance advantage because we can do one backward pass for many forward passes. It also makes sense intuitively because it seems counter-productive to change the entire network based on one piece of data. It sounds like the entire government changing because one person said they didn't like it. But batches are more like democracy. Every voices their opinions and the most prevalent one is adopted.
